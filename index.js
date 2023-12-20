@@ -1,35 +1,9 @@
-// db stuff
-const Sequelize = require('sequelize');
+import 'dotenv/config'
+import pkg from 'discord.js';
+const { Client, GatewayIntentBits } = pkg;
 
-const sequelize = new Sequelize('database', 'user', 'password', {
-    host: 'localhost',
-    dialect: 'sqlite',
-    logging: false,
-    storage: 'database.sqlite',
-});
 
-const quoicouCount = sequelize.define('quoicoucount', {
-    discordid: {
-        type: Sequelize.STRING,
-        unique: true,
-    },
-    username: {
-        type: Sequelize.STRING,
-        unique: true,
-    },
-    usage_count: {
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
-        allowNull: false,
-    },
-});
-
-// discord stuff
-
-require('dotenv').config()
-const { Client, GatewayIntentBits } = require('discord.js');
-
-const client = new Client({
+export const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
@@ -39,23 +13,33 @@ const client = new Client({
     ]
 });
 
+
 client.once('ready', readyClient => {
-    quoicouCount.sync({ force: true });
     console.log(`Logged in as ${readyClient.user.tag}!`);
+    import("./events/ready.js");
+    import("./events/messageCreate.js");
+    import("./events/interactionCreate.js");
 });
 
-client.on('messageCreate', async message => {
-    if (/quoi((?= ?\?+$|\!+$)|$)/g.test(message.content)) {
-        console.log(`Reacting to message: ${message.content}`);
-        console.log(message.author.globalName)
-        console.log(message.author.id)
-        const user = await quoicouCount.findOne({ where: { discordid: message.author.id } })
-        console.log(user)
-        message.react('😹')
-    } else {
-        console.log(`Not reacting to message: ${message.content}`);
-    }
-}
-)
+
+client.once('ready', async () => {
+    const data = {
+        name: 'leaderboard',
+        description: 'Post the leaderboard to a specific channel',
+        options: [{
+            name: 'channel',
+            type: 7,
+            description: 'The channel to post the leaderboard',
+            required: true,
+        }],
+    };
+
+    // Register the command for a specific guild
+    const guildId = '827578591885131827'; // Replace with your guild ID
+    const guild = client.guilds.cache.get(guildId);
+    const command = await guild?.commands.create(data);
+    console.log(`Registered command: ${command?.name}`);
+});
+
 
 client.login(process.env.DISCORD_TOKEN)
