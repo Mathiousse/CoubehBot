@@ -7,6 +7,9 @@ let messagesCache = {}
 const coubehWords = ["feur", "coubeh"]
 const regexPrankex = /quoi((?= ?\?+$|\!+$)|$)/g
 client.on('messageCreate', async message => {
+    if (message.author.bot) return;
+    if (message.channel.type === 'DM') return;
+
     if (!messagesCache[message.channelId]) {
         messagesCache[message.channelId] = [message];
     } else {
@@ -15,15 +18,16 @@ client.on('messageCreate', async message => {
     if (messagesCache[message.channelId].length > 10) {
         messagesCache[message.channelId].shift();
     }
+
     for (const word of coubehWords) {
         if (message?.content?.includes(word)) {
             for (const messages of messagesCache[message.channelId]) {
                 // if (messages.author.id === message.author.id) { console.log("i", messages.author.id, message.author.id, "", messages.content, message.content); break }
                 if (regexPrankex.test(messages.content.toLowerCase())) {
-                    console.log(messages.content, "messages.content", message.content, "message.content")
-
                     const isMessagePresent = await messagesCoubeds.findOne({ where: { messageId: messages.id, guildId: message.guild.id } });
-                    if (isMessagePresent) { console.log("i"); break }
+                    if (isMessagePresent) {
+                        continue
+                    }
                     await messagesCoubeds.upsert({ messageId: messages.id, coubedBy: messages.author.id, guildId: message.guild.id });
                     const userStats = await userCoubehStats.findOne({ where: { discordid: message.author.id, guildId: message.guild.id } })
 
@@ -92,6 +96,8 @@ client.on('messageCreate', async message => {
                         );
                         await leaderboardMessage.edit({ embeds: [embed] });
                     }
+                } else {
+                    console.log("no match for word '" + word, messages.content.toLowerCase(), "'")
                 }
             }
         }
