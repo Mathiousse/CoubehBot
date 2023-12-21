@@ -10,6 +10,9 @@ export const userCoubehStats = sequelize.define('userCoubehStats', {
     discordid: {
         type: Sequelize.STRING,
     },
+    guildId: {
+        type: Sequelize.STRING,
+    },
     username: {
         type: Sequelize.STRING,
     },
@@ -25,7 +28,24 @@ export const messagesCoubeds = sequelize.define('messagesCoubeds', {
         type: Sequelize.STRING,
         unique: true,
     },
+    guildId: {
+        type: Sequelize.STRING,
+    },
     coubedBy: {
+        type: Sequelize.STRING,
+    }
+});
+
+
+export const leaderboardMessages = sequelize.define('leaderboardMessages', {
+    guildId: {
+        type: Sequelize.STRING,
+        unique: true,
+    },
+    messageId: {
+        type: Sequelize.STRING,
+    },
+    channelId: {
         type: Sequelize.STRING,
     }
 });

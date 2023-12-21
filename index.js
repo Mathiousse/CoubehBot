@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import pkg from 'discord.js';
 const { Client, GatewayIntentBits } = pkg;
-
+import { userCoubehStats, messagesCoubeds, leaderboardMessages } from "./database.js";
 
 export const client = new Client({
     intents: [
@@ -37,8 +37,20 @@ client.once('ready', async () => {
     // Register the command for a specific guild
     const guildId = '827578591885131827'; // Replace with your guild ID
     const guild = client.guilds.cache.get(guildId);
-    const command = await guild?.commands.create(data);
-    console.log(`Registered command: ${command?.name}`);
+    await guild?.commands.create(data);
+
+    const guildId2 = '1187170519301230612'; // Replace with your guild ID
+    const guild2 = client.guilds.cache.get(guildId2);
+    await guild2?.commands.create(data);
+
+    await client.application.commands.create(data);
+    userCoubehStats.sync();
+    // userCoubehStats.sync({ force: true });
+    messagesCoubeds.sync()
+    // messagesCoubeds.sync({ force: true })
+    leaderboardMessages.sync()
+    // leaderboardMessages.sync({ force: true })
+
 });
 
 
