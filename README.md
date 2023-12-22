@@ -7,6 +7,7 @@ Ce bot a pour objectif très simple de semer la terreur dans un serveur Discord,
 points et de grimper dans le classement...
 
 ![image](https://github.com/Mathiousse/QuoicouBot/assets/58639269/955fd0cc-e83a-4aee-a9ef-6e8cf9d28b1c)
+###
 *Le bot réagit au coubeh*
 
 ### /leaderboard {channel}
