@@ -10,7 +10,15 @@ client.on('interactionCreate', async interaction => {
         const commands = await client.application.commands.fetch();
         // Delete all commands
         for (const command of commands.values()) {
-            await client.application.commands.delete(command.id);
+            try {
+                await client.application.commands.delete(command.id);
+            } catch (error) {
+                if (error.code === 10063) {
+                    console.error(`Tried to delete an unknown command: ${command.id}`);
+                } else {
+                    throw error;
+                }
+            }
         }
         let ranks = []
         const { commandName } = interaction;
