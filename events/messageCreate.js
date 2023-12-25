@@ -6,6 +6,20 @@ import { EmbedBuilder } from "discord.js";
 let messagesCache = {}
 const coubehWords = ["feur", "coubeh"]
 const regexPrankex = /quoi((?= ?\?+$|\!+$)|$)/g
+
+const slugify = (text) => {
+    return text
+        .toString()                   // Cast to string (optional)
+        .normalize('NFKD')            // The normalize() using NFKD method returns the Unicode Normalization Form of a given string.
+        .toLowerCase()                // Convert the string to lowercase letters
+        .trim()                       // Remove whitespace from both sides of a string (optional)
+        .replace(/\s+/g, '-')         // Replace spaces with -
+        .replace(/[^\w\-]+/g, '')     // Remove all non-word chars
+        .replace(/\_/g, '-')           // Replace _ with -
+        .replace(/\-\-+/g, '-')       // Replace multiple - with single -
+        .replace(/\-$/g, '');         // Remove trailing -
+}
+
 client.on('messageCreate', async message => {
     if (message.author.bot) return;
     if (message.channel.type === 'DM') return;
@@ -20,10 +34,11 @@ client.on('messageCreate', async message => {
     }
 
     for (const word of coubehWords) {
-        if (message?.content?.includes(word)) {
+        if (!message.content) continue
+        if (message.content.includes(word)) {
             for (const messages of messagesCache[message.channelId]) {
-                // if (messages.author.id === message.author.id) { console.log("i", messages.author.id, message.author.id, "", messages.content, message.content); break }
-                if (regexPrankex.test(messages.content.toLowerCase())) {
+                if (messages.author.id === message.author.id) { continue }
+                if (regexPrankex.test(slugify(messages.content))) {
                     const isMessagePresent = await messagesCoubeds.findOne({ where: { messageId: messages.id, guildId: message.guild.id } });
                     if (isMessagePresent) {
                         continue
@@ -45,7 +60,13 @@ client.on('messageCreate', async message => {
                     const leaderboardMessageRecord = await leaderboardMessages.findOne({ where: { guildId: message.guild.id } });
                     if (leaderboardMessageRecord) {
                         const channel = client.channels.cache.get(leaderboardMessageRecord.channelId);
-                        const leaderboardMessage = await channel.messages.fetch(leaderboardMessageRecord.messageId);
+                        let leaderboardMessage
+                        try {
+                            leaderboardMessage = await channel.messages.fetch(leaderboardMessageRecord.messageId);
+                        } catch (error) {
+                            console.error(`Failed to fetch message: ${error}`);
+                        }
+                        // const leaderboardMessage = await channel.messages.fetch(leaderboardMessageRecord.messageId);
 
                         // Recreate the embed with the updated leaderboard data
                         let ranks = []
