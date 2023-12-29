@@ -190,6 +190,8 @@ try {
 function replaceLink(link) {
     if (link.includes("twitter.com/")) {
         return link.replace("twitter.com", "vxtwitter.com");
+    } else if (link.includes("x.com/")) {
+        return link.replace("x.com", "vxtwitter.com");
     } else if (link.includes("instagram.com/")) {
         return link.replace("instagram.com", "ddinstagram.com");
     } else if (link.includes("tiktok.com/")) {
